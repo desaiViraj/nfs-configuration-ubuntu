@@ -1,12 +1,15 @@
-***********STEPS TO INSTALL NFS ON UBUNTU 18.04************ 
+*****************************************************************
+*            STEPS TO INSTALL NFS ON UBUNTU 18.04               *
+*****************************************************************
+
 1. Install Package(MASTER MACHINE)
   #apt install nfs-kernel-server
 
-2. Start Service
+2. Start NFS Service
   #systemctl status nfs-server.service
   #systemctl status nfs-kernel-server.service
 
-3. Add entry to firewall.(Allo Port 2049)
+3. Add entry to firewall.(Allow Port 2049)
   #ufw allow from <IP or HOSTNAME> to any port nfs
   Example: #ufw allow from 172.31.44.112 to any port nfs
   #ufw status
@@ -17,17 +20,20 @@
   #vim /etc/exports
   Example: /nfs-share client.example.com(rw,sync)
 
-5. Run the exportfs command
+5. Run the exportfs command to reflect the changes done to exports file
   #exportfs -av
   
-  rpcinfo -p  172.31.44.112
-  
-6. Edit below file
+6. Edit below file and add any free port to it
   #vim /etc/default/nfs-kernel-server
+  
+  ADD: RPCMOUNTDOPTS="--manage-gids -p 2000"
    
 7. Also now, create one file and add below entries to it.
    #cd /etc/sysctl.d/
    #vim 30-nfs-port.conf
+ 
+   ADD: fs.nfs.nlm_tcpport = 2001
+        fs.nfs.nlm_udpport = 2002
 
 8. Update the changes  
    #sysctl --system
