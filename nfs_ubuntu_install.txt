@@ -1,0 +1,58 @@
+***********STEPS TO INSTALL NFS ON UBUNTU 18.04************ 
+1. Install Package(MASTER MACHINE)
+  #apt install nfs-kernel-server
+
+2. Start Service
+  #systemctl status nfs-server.service
+  #systemctl status nfs-kernel-server.service
+
+3. Add entry to firewall.(Allo Port 2049)
+  #ufw allow from <IP or HOSTNAME> to any port nfs
+  Example: #ufw allow from 172.31.44.112 to any port nfs
+  #ufw status
+  #ufw enable
+  #ufw status
+
+4. Add entry to export file(Client IP or Hostname that will access the data)
+  #vim /etc/exports
+  Example: /nfs-share client.example.com(rw,sync)
+
+5. Run the exportfs command
+  #exportfs -av
+  
+  rpcinfo -p  172.31.44.112
+  
+6. Edit below file
+  #vim /etc/default/nfs-kernel-server
+   
+7. Also now, create one file and add below entries to it.
+   #cd /etc/sysctl.d/
+   #vim 30-nfs-port.conf
+
+8. Update the changes  
+   #sysctl --system
+
+9. Add kernel level firewall rule.
+  #iptables -A INPUT -s 172.31.44.112 -p tcp -m multiport --ports 111,2000,2001,2049 -j ACCEPT
+  #197  iptables -A INPUT -s 172.31.44.112 -p udp -m multiport --ports 111,2000,2002,2049 -j ACCEPT
+  
+10. Restart NFS service.
+  #systemctl restart nfs-kernel-server
+  #systemctl restart nfs-server
+  #rpcinfo -p 172.31.44.112
+
+11. Add UFW rule
+  #ufw allow from 172.31.37.60 to any port 111
+  #ufw allow from 172.31.37.60 to any port 2000
+  #ufw allow from 172.31.37.60 to any port 22
+
+
+NFS CLIENT
+1. Install nfs-common package
+  #apt install nfs-common -y
+
+2. Check using showmount
+  #showmount -e <NFS SERVER IP/HOSTNAME>
+
+3. Mount
+  #mount IP:/sharepath /local-directory
